@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}{{ page_title }} · CareerTrack{% endblock %}
+{% block content %}
+<div class="page-heading">
+  <div><div class="eyebrow">APPLICATION DETAILS</div><h1>{{ page_title }}</h1><p class="muted">Keep the important details of this opportunity in one place.</p></div>
+  <a class="btn btn-outline" href="{{ url_for('dashboard') }}">← Back to dashboard</a>
+</div>
+<form class="panel form-panel" method="post">
+  <div class="form-section-title"><span class="section-number">01</span><div><h2>Opportunity details</h2><p class="muted small">Company and role information.</p></div></div>
+  <div class="form-grid">
+    <label>Company name <b>*</b><input name="company" required maxlength="120" value="{{ item.get('company','') }}" placeholder="e.g. WES Consultancy"></label>
+    <label>Job / internship role <b>*</b><input name="role" required maxlength="120" value="{{ item.get('role','') }}" placeholder="e.g. Software Engineer Intern"></label>
+    <label>Location<input name="location" maxlength="120" value="{{ item.get('location','') }}" placeholder="e.g. Nagpur, Maharashtra"></label>
+    <label>Work mode<select name="work_mode">{% for mode in ['On-site','Hybrid','Remote','Not specified'] %}<option {% if item.get('work_mode','Not specified')==mode %}selected{% endif %}>{{ mode }}</option>{% endfor %}</select></label>
+    <label>Monthly stipend (₹)<input type="number" min="0" step="1" name="stipend" value="{{ item.get('stipend') if item.get('stipend') is not none else '' }}" placeholder="e.g. 8000"></label>
+    <label>Application date <b>*</b><input type="date" name="application_date" required value="{{ item.get('application_date', today if today is defined else '') }}"></label>
+  </div>
+  <div class="form-section-title second"><span class="section-number">02</span><div><h2>Progress & follow-up</h2><p class="muted small">Track your next step.</p></div></div>
+  <div class="form-grid">
+    <label>Application status<select name="status">{% for s in statuses %}<option value="{{ s }}" {% if item.get('status','Applied')==s %}selected{% endif %}>{{ s }}</option>{% endfor %}</select></label>
+    <label>Follow-up date<input type="date" name="follow_up_date" value="{{ item.get('follow_up_date','') or '' }}"></label>
+    <label class="full">Job / company URL<input type="url" name="job_url" value="{{ item.get('job_url','') }}" placeholder="https://..."></label>
+    <label class="full">Notes<textarea name="notes" rows="4" placeholder="Contact person, interview details, requirements, etc.">{{ item.get('notes','') }}</textarea></label>
+  </div>
+  <div class="form-actions"><a class="btn btn-outline" href="{{ url_for('dashboard') }}">Cancel</a><button class="btn btn-primary" type="submit">Save application <span>→</span></button></div>
+</form>
+{% endblock %}

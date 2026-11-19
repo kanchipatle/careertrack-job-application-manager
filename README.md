@@ -2,6 +2,12 @@
 
 CareerTrack is a responsive Flask web application that helps students and job seekers organise their job and internship applications in one place.
 
+## Live Demo
+
+**[Open CareerTrack Live Website](https://careertrack-job-application-manager.onrender.com)**
+
+> The hosted service may take a little time to wake up after a period of inactivity.
+
 ## Features
 - Dashboard showing total, active, interview and selected application counts.
 - Add, edit and delete job or internship applications.
@@ -69,4 +75,4 @@ Application records are stored in a local SQLite file named `careertrack.db`. It
 - Built dashboard metrics, upcoming follow-up reminders and CSV export.
 
 ## Scope
-This is a personal portfolio project. It currently uses a local SQLite database and does not include user authentication, cloud hosting, email notifications or AI-powered features.
+This is a personal portfolio project. It currently uses a local SQLite database and does not include user authentication, cloud database persistence, email notifications or AI-powered features.

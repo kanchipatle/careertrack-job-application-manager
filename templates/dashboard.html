@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}Dashboard · CareerTrack{% endblock %}
+{% block content %}
+<div class="page-heading">
+  <div><div class="eyebrow">OVERVIEW</div><h1>Application dashboard</h1><p class="muted">A clear view of your job and internship search.</p></div>
+  <a class="btn btn-primary" href="{{ url_for('add_application') }}">＋ Add application</a>
+</div>
+<div class="stats-grid">
+  <div class="stat-card"><div class="stat-top"><span>Total applications</span><span class="stat-icon violet">▦</span></div><div class="stat-number">{{ total }}</div><div class="stat-note">All opportunities tracked</div></div>
+  <div class="stat-card"><div class="stat-top"><span>In progress</span><span class="stat-icon blue">◷</span></div><div class="stat-number">{{ active }}</div><div class="stat-note">Applied, assessment or interview</div></div>
+  <div class="stat-card"><div class="stat-top"><span>Interviews</span><span class="stat-icon orange">✧</span></div><div class="stat-number">{{ interviews }}</div><div class="stat-note">Opportunities to prepare for</div></div>
+  <div class="stat-card"><div class="stat-top"><span>Selected</span><span class="stat-icon green">✓</span></div><div class="stat-number">{{ selected }}</div><div class="stat-note">Offers received</div></div>
+</div>
+<div class="two-col">
+  <section class="panel">
+    <div class="panel-heading"><div><h2>Application pipeline</h2><p class="muted small">See where your applications stand.</p></div><span class="soft-tag">STATUS</span></div>
+    {% set colors = {"Wishlist":"#9b8afb","Applied":"#6b8df5","Assessment":"#e7a64c","Interview":"#39a7a0","Selected":"#42a77b","Rejected":"#d87979"} %}
+    <div class="pipeline">
+      {% for s in statuses %}
+      <div class="pipeline-row"><div class="pipeline-label"><span class="dot" style="background:{{ colors[s] }}"></span>{{ s }}</div><div class="bar-track"><div class="bar-fill" style="width:{{ (counts[s] / total * 100) if total else 0 }}%;background:{{ colors[s] }}"></div></div><strong>{{ counts[s] }}</strong></div>
+      {% endfor %}
+    </div>
+  </section>
+  <section class="panel">
+    <div class="panel-heading"><div><h2>Follow-up reminders</h2><p class="muted small">Your upcoming follow-up dates.</p></div><span class="soft-tag">NEXT STEPS</span></div>
+    {% if upcoming %}
+      <div class="reminder-list">
+      {% for item in upcoming %}
+        <div class="reminder"><div class="date-chip"><strong>{{ item.follow_up_date[8:10] }}</strong><span>{{ item.follow_up_date[5:7] }}</span></div><div class="reminder-info"><strong>{{ item.company }}</strong><span>{{ item.role }}</span></div><span class="status-pill {{ item.status|lower }}">{{ item.status }}</span></div>
+      {% endfor %}
+      </div>
+    {% else %}
+      <div class="empty-reminder"><div class="empty-icon">◷</div><strong>No upcoming follow-ups</strong><p>Add a follow-up date to an application to see it here.</p></div>
+    {% endif %}
+  </section>
+</div>
+<section class="panel applications-panel">
+  <div class="panel-heading list-heading"><div><h2>All applications</h2><p class="muted small">Search, filter and manage your opportunities.</p></div><a class="btn btn-outline" href="{{ url_for('export_csv') }}">↓ Export CSV</a></div>
+  <form class="filters" method="get" action="{{ url_for('dashboard') }}">
+    <div class="search-wrap"><span>⌕</span><input name="q" value="{{ q }}" placeholder="Search company, role or location..."></div>
+    <select name="status"><option value="">All statuses</option>{% for s in statuses %}<option value="{{ s }}" {% if status_filter==s %}selected{% endif %}>{{ s }}</option>{% endfor %}</select>
+    <select name="sort"><option value="newest" {% if sort=="newest" %}selected{% endif %}>Newest first</option><option value="oldest" {% if sort=="oldest" %}selected{% endif %}>Oldest first</option></select>
+    <button class="btn btn-dark" type="submit">Filter</button>
+    {% if q or status_filter %}<a class="clear-link" href="{{ url_for('dashboard') }}">Clear</a>{% endif %}
+  </form>
+  {% if applications %}
+  <div class="table-scroll"><table><thead><tr><th>COMPANY & ROLE</th><th>LOCATION</th><th>STIPEND</th><th>APPLIED ON</th><th>STATUS</th><th>FOLLOW-UP</th><th>ACTIONS</th></tr></thead><tbody>
+  {% for item in applications %}
+  <tr>
+    <td><div class="company-name">{{ item.company }}</div><div class="role-name">{{ item.role }}</div>{% if item.job_url %}<a class="tiny-link" href="{{ item.job_url }}" target="_blank" rel="noopener">Open job link ↗</a>{% endif %}</td>
+    <td><span class="table-main">{{ item.location or "—" }}</span><span class="table-sub">{{ item.work_mode }}</span></td>
+    <td class="table-main">{% if item.stipend is not none %}₹{{ "{:,.0f}".format(item.stipend) }}/mo{% else %}—{% endif %}</td>
+    <td class="table-main">{{ item.application_date }}</td>
+    <td><span class="status-pill {{ item.status|lower }}">{{ item.status }}</span></td>
+    <td class="table-main">{{ item.follow_up_date or "—" }}</td>
+    <td><div class="actions"><a href="{{ url_for('edit_application', app_id=item.id) }}" title="Edit">✎</a><form method="post" action="{{ url_for('delete_application', app_id=item.id) }}" onsubmit="return confirm('Delete this application?')"><button title="Delete" type="submit">×</button></form></div></td>
+  </tr>
+  {% endfor %}
+  </tbody></table></div>
+  {% else %}
+    <div class="empty-state"><div class="empty-icon">▤</div><h3>No applications yet</h3><p>{% if q or status_filter %}No results match your filters. Try changing your search.{% else %}Add your first opportunity and start building your application pipeline.{% endif %}</p><a class="btn btn-primary" href="{{ url_for('add_application') }}">＋ Add your first application</a></div>
+  {% endif %}
+</section>
+{% endblock %}
